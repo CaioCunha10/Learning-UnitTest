@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LUnitTest
 {
-    public class Calculadora
+    public class Calculadora : ICalculadora
     {
         public int Somar(int num1, int num2)
         { 

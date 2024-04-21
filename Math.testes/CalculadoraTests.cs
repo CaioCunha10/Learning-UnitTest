@@ -1,59 +1,59 @@
 ﻿
 
+using AutoFixture;
+using FluentAssertions;
 using LUnitTest;
+using Moq;
 
 namespace Math.testes
 {
     public class CalculadoraTests
-    {
-        private readonly Calculadora _calculadora;
+    {   ///implementando a lib Moq que cria objetos e classes, facilitando isolamento de unidades...
+        ///implementando o autofixture para gerar dados aleatórios para testes
+        private readonly Fixture _fixture;
+        private readonly Operacoes _operacoes;
+        private readonly Mock<ICalculadora> _calculadoraMock = new Mock<ICalculadora>();
 
             public CalculadoraTests()
             {
-                _calculadora = new Calculadora();
+                _operacoes = new Operacoes(_calculadoraMock.Object);
+                _fixture = new Fixture();
             }
 
         [Fact(DisplayName = "Primeiro método/unidade de Calculadora")]
-        public void Somar_QuandoInformadoDoisNumeros_DeveSomarCorretamente()
+        public void Somar_QuandoInformadoDoisNumeros_DeveSomarCorretamente_Chamando_O_Metodo_Somar()
         {
             ///Arrange(Configuração de toda a unidade que está sendo testada precisa pra funcionar)
-            int num1 = 10;
-            int num2 = 20;
+            int num1 = _fixture.Create<int>();
+            int num2 = _fixture.Create<int>();
+
+            _calculadoraMock
+            .Setup(x => x.Somar(It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(60);
 
             ///Act(Executa a ação/comportamento que está sendo testada)
-           var resultado =  _calculadora.Somar(num1, num2);
+           var resultado =  _operacoes.RealizarSoma(num1, num2);
 
+            ///implementando o package FluentAsserts para verificar comparações entre testes...
             ///Assert(Validação)
-            Assert.Equal(30, resultado);
+            resultado
+                .Should()
+                .NotBe(0);
+
+            resultado
+                .Should()
+                .BeGreaterThan(50);
+
+            resultado
+                .Should()
+                .BeLessThanOrEqualTo(60);
+            /// Podemos verificar um for utilizando "Times.Exactly passando quantas x queiramos que o teste seja chamado.
+            resultado
+                .Should()
+                .Be(60);
+            _calculadoraMock.Verify(x => x.Somar(It.IsAny<int>(), It.IsAny<int>()), Times.Once);
         }
 
-        [Fact(DisplayName = "Primeiro método/unidade de Calculadora")]
-        public void Multiplicar_QuandoInformadoDoisNumeros_DeveMultiplicarCorretamente()
-        {
-            ///Arrange 
-            int num1 = 5;
-            int num2 = 10;
-
-            ///Act 
-            var resultado = _calculadora.Multiplicar(num1, num2);
-
-            ///Assert 
-            Assert.Equal(50, resultado);
-        }
-
-
-        [Fact(DisplayName = "Primeiro método/unidade de Calculadora")]
-        public void Subtrair_QuandoInformadoDoisNumeros_DeveSubtrairCorretamente()
-        {
-            ///Arrange 
-            int num1 = 50;
-            int num2 = 40;
-
-            ///Act 
-            var resultado = _calculadora.Subtrair(num1, num2);
-
-            ///Assert 
-            Assert.Equal(10, resultado);
-        }
+     
     }
 }
